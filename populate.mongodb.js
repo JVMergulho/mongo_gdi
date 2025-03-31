@@ -22,6 +22,13 @@ const route1Id = ObjectId();
 const route2Id = ObjectId();
 const route3Id = ObjectId();
 
+const ride1Id = ObjectId();
+const ride2Id = ObjectId();
+const ride3Id = ObjectId();
+const ride4Id = ObjectId();
+const ride5Id = ObjectId();
+const ride6Id = ObjectId();
+
 // POPULANDO BD
 
 // Insere dados dos usuários -> motoristas e passageiros
@@ -29,7 +36,7 @@ db.users.insertMany([
   {
     _id: ObjectId(user1Id),
     name: 'Cleber Mendonça',
-    veihcle: {
+    vehicle: {
       model: 'Toyota Corolla',
       year: 2015,
       color: 'black',
@@ -43,7 +50,7 @@ db.users.insertMany([
   {
     _id: ObjectId(user2Id),
     name: 'Bárbara Omena',
-    veihcle: {
+    vehicle: {
       model: 'Honda Civic',
       year: 2018,
       color: 'white',
@@ -65,7 +72,7 @@ db.users.insertMany([
   {
     _id: ObjectId(user4Id),
     name: 'Lucas Silva',
-    veihcle: {
+    vehicle: {
       model: 'Ford Fiesta',
       year: 2016,
       color: 'blue',
@@ -144,17 +151,20 @@ db.routes.insertMany([
 // Insere dados das caronas agendadas
 db.scheduledRides.insertMany([
   {
+    _id: ObjectId(ride1Id),
     user_id: ObjectId(user3Id),
     route_id: ObjectId(route1Id),
     date_created: ISODate('2023-10-01T08:00:00Z'),
     status: 'scheduled',
   },
   {
+    _id: ObjectId(ride2Id),
     user_id: ObjectId(user5Id),
     route_id: ObjectId(route2Id),
     status: 'completed',
   },
   {
+    _id: ObjectId(ride3Id),
     user_id: ObjectId(user1Id),
     route_id: ObjectId(route3Id),
     status: 'completed',
@@ -162,20 +172,37 @@ db.scheduledRides.insertMany([
     feedback: 'Boa viagem, mas o motorista poderia ser mais gentil.',
   },
   {
+    _id: ObjectId(ride4Id),
     user_id: ObjectId(user2Id),
     route_id: ObjectId(route3Id),
     status: 'canceled',
   },
   {
+    _id: ObjectId(ride5Id),
     user_id: ObjectId(user4Id),
     route_id: ObjectId(route2Id),
     status: 'completed',
-    star_rating: 4.8,
-    feedback: 'Viagem excelente, motorista muito educado.',
+    star_rating: 4.8
   },
   {
+    _id: ObjectId(ride6Id),
     user_id: ObjectId(user5Id),
     route_id: ObjectId(route1Id),
     status: 'scheduled',
   },
 ]);
+
+// renomeia a coleção "rides" para "scheduledRides"
+db.rides.renameCollection("rides");
+
+//atualiza a 
+db.rides.updateOne(
+  { _id: ObjectId(ride1Id) },
+  {
+    $set: {
+      status: 'completed',
+      star_rating: 4.1,
+      feedback: 'O motorista foi gentil, mas ele corre demais!!!',
+    },
+  }
+);

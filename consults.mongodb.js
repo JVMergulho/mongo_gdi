@@ -7,17 +7,46 @@ use('ecoRide');
 // Consulta os 3 primeiros usuários
 db.users.find().limit(3).pretty();
 
+db.users.findOne({ "origin.address": "Av. Paulista, 1000 - São Paulo" }).pretty();
+
+// média de estrelas dos motoristas
+db.users.aggregate([
+  {
+    $match: {
+      vehicle: { $exists: true }
+    }
+  },
+  {
+    $group: {
+      _id: null,
+      avg_driver_star_rating: { $avg: "$avg_star_rating" }
+    }
+  }
+]).pretty();
+
 
 // Consulta todos os motoristas com média de avaliação maior que 4.4
 db.users.aggregate([
   {
     $match: {
-      veihcle: { $exists: true },
+      vehicle: { $exists: true },
       avg_star_rating: { $gte: 4.4 }
     }
   },
   {
     $sort: { avg_star_rating: -1 }
+  }
+]).pretty();
+
+// cosulta quantos caronas foram completadas
+db.scheduledRides.aggregate([
+  {
+    $match: {
+      status: "completed"
+    }
+  },
+  {
+    $count: "total_completed_rides"
   }
 ]).pretty();
 

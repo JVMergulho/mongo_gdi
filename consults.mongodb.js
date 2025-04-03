@@ -390,3 +390,70 @@ db.routes.aggregate([
 },
 { $sort: { monthYear: 1 } }
 ]).pretty();
+
+// converter feedback para caixa alta
+
+
+db.scheduledRides.aggregate([
+    {
+      $match: { 
+        status: "completed",
+        feedback: { $exists: true }
+      }
+    },
+    {
+      $addFields: {
+        feedbackUpper: {
+          $function: {
+            body: function(feedback) {
+              return feedback.toUpperCase();
+            },
+            args: ["$feedback"],
+            lang: "js"
+          }
+        }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        user_id: 1,
+        feedback: 1,
+        feedbackUpper: 1,
+        date_created: 1
+      }
+    }
+  ]).pretty();
+
+
+// Busca o usuário "Lucas Silva" com projeção de alguns campos
+var userDetail = db.users.findOne(
+    { name: "Lucas Silva" },
+    { name: 1, roles: 1, avg_star_rating: 1 }
+  );
+  
+  if (userDetail) {
+    // Busca todas as corridas completadas desse usuário
+    userDetail.completedRides = db.scheduledRides.find(
+      { user_id: userDetail._id, status: "completed" }
+    ).toArray();
+  }
+
+// map reduce rides per user
+
+db.scheduledRides.mapReduce(
+    // map
+    function() {
+      emit(this.user_id, 1);
+    },
+    // reduce
+    function(userId, values) {
+      return Array.sum(values);
+    },
+    {
+      out: "rides_per_user" // nome da coleção de resultado
+    }
+  );
+  
+  // Depois, veja o resultado:
+  db.rides_per_user.find();
